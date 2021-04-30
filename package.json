@@ -1,0 +1,45 @@
+{
+	"name": "sirius",
+	"description": "The brightest star in the night sky.",
+	"version": "0.0.0",
+	"keywords": [
+		"c",
+		"cstar",
+		"c*",
+		"sirius",
+		"compiler",
+		"transpiler"
+	],
+	"homepage": "https://wiki.nicholatian.com/C*",
+	"bugs": {
+		"url": "https://github.com/aquefir/sirius/issues"
+	},
+	"license": "SEE LICENSE IN COPYING",
+	"private": true,
+	"author": {
+		"name": "Aquefir",
+		"email": "postmaster@aquefir.co",
+		"url": "https://aquefir.co/"
+	},
+	"contributors": [ {
+			"name": "Alexander Nicholi",
+			"email": "me@nicholatian.com",
+			"url": "https://nicholatian.com/"
+		}
+	],
+	"funding": {
+		"type": "github",
+		"url": "https://github.com/sponsors/nicholatian"
+	},
+	"directories": {
+		"doc": "doc"
+	},
+	"scripts": {
+		"main": "ts-node src/main.ts"
+	},
+	"dependencies": {
+		"@types/node": "^15.0.1",
+		"ts-node": "^9.1.1",
+		"typescript": "^4.2.4"
+	}
+}

@@ -1,0 +1,915 @@
+%&program=xelatex
+%&encoding=UTF-8 Unicode
+
+\documentclass[12pt,english]{article}
+\usepackage[a4paper,bindingoffset=1.5cm,margin=1cm,footskip=0.75cm]{geometry}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{blindtext}
+\usepackage{scrextend}
+
+\widowpenalties 1 10000
+\raggedbottom
+
+\setcounter{tocdepth}{3}
+
+\usepackage[bookmarks=true, unicode=true, hidelinks=true,
+linktoc=section]{hyperref}
+
+\newlength{\tindent}
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+\setlength{\parskip}{1.25em}
+
+\pagenumbering{arabic}
+
+\usepackage{mathspec}
+\usepackage{fontspec}
+\setallmainfonts{Palatino}
+\setmonofont{Source Code Pro}
+
+\renewcommand{\texttt}[1]{\ttfamily{\small{#1}}\normalfont{}}
+
+\newcommand{\hr}{\noindent\rule{185mm}{0.4pt}}
+
+\begin{document}
+\begin{center}
+
+\vspace*{9cm}
+
+\Large{\textbf{ARQADIUM, LLC}} \\*
+\vspace*{0.25cm}
+\Huge{\textbf{The C$\star$ Programming Language}}
+\end{center}
+
+\clearpage{}
+
+\thispagestyle{empty}
+
+\vspace*{3cm}
+
+\begin{center}
+\LARGE{\textbf{Attention}}
+\end{center}
+
+\vspace*{1.5cm}
+
+This document contains proprietary information of \textbf{ARQADIUM, LLC}
+and/or its licensed developers and are protected by national and international
+copyright laws. They may not be disclosed to third parties or copied or
+duplicated in any form, in whole or in part, without the prior written consent
+of ARQADIUM, LLC.
+
+\clearpage{}
+
+\tableofcontents{}
+
+\clearpage{}
+
+\section{Introduction}
+\label{s-introduction}
+
+\subsection{Purpose}
+\label{s-introduction-purpose}
+
+C$\star$ is a systems programming language derived from ANSI C with the aim of
+facilitating a system of ``Law and Order''. Like C, it is statically and
+strongly typed. It takes after C's strengths in \textit{communicativity} and
+lack of genericism. By providing ``Law and Order'', C$\star$ provides a better
+way of achieving program correctness than current forms of contract
+programming or test-driven development. In systems programming, correctness is
+crucial, so C$\star$ is a great leap forward for the efficacy of the field.
+
+\subsection{Document conventions}
+\label{s-introduction-document_conventions}
+
+\paragraph{Normative terminology}
+This document makes use of ``normative terminology'' to communicate specific
+meanings of terms which would otherwise be vague or confusing. Wherever these
+appear, they will be highlighted or bolded.
+
+\paragraph{Requirement levels}
+The key words \textbf{must}, \textbf{must not}, \textbf{required},
+\textbf{shall}, \textbf{shall not}, \textbf{should}, \textbf{should not},
+\textbf{recommended}, \textbf{may}, \textbf{may not}, and \textbf{optional} in
+this document are to be interpreted as described in RFC 2119.
+
+\paragraph{Definition of general terms}
+The following terms are used in this document:
+
+\begin{labeling}{Unspecifiedd behaviour}
+\item [\textbf{Program}] A collection of actions expressed in C$\star$ source
+code
+\item [\textbf{Machine}] A Turing machine to execute the \textbf{program}
+\item [\textbf{Implementation}] The software that translates a
+\textbf{program} into a form appropriate for the \textbf{machine}
+\item [\textbf{Total system}] The portion of a \textbf{program} for which the
+entire contents can be fully purveyed by the \textbf{implementation}
+\item [\textbf{Object}] a region of data storage in a \textbf{machine}.
+\textbf{Objects} are composed of contiguous sequences of bits,
+the size, ordering and encoding of which are either explicitly specified or
+\textbf{implementation}-defined
+\item [\textbf{Type}] Notation to specify the specific \textit{nature}, such
+as the size, properties, and possible forms of data of an \textbf{object}
+\item [\textbf{Rune}] an \textbf{object} at least 21 bits in size,
+representing a single Unicode code point
+\item [\textbf{Constraint}] a specific limitation imposed on the possible form
+of some kind of \textbf{objects}
+\item [\textbf{Law}] An explicit, user-defined \textbf{constraint} to be
+applied to specific \textbf{types} of \textbf{objects}
+\item [\textbf{Pact}] A \textit{falsifiable} \textbf{constraint} to be checked
+on certain \textbf{types} of \textbf{objects}
+\item [\textbf{Marshal}] Validation boilerplate code that is dispatched to
+handle falsified \textbf{pacts}
+\item [\textbf{Address}] an \textbf{object} representing the location of an
+\textbf{object}, which may imply granularity \textbf{constraints} to a nearest
+number of bits (often 8)
+\item [\textbf{Unspecified behaviour}] behaviour of a \textbf{program} for
+which this specification defers to be \textbf{implementation}-defined
+\item [\textbf{Undefined behaviour}] action(s) expressed in C$\star$ source
+code for which this specification explicitly disclaims any and all claims of
+behaviour
+\end{labeling}
+
+\subsection{Compliance}
+\label{s-introduction-compliance}
+
+A conforming \textbf{implementation shall} use only features of the language and library specified in this document. It \textbf{shall not} produce \textbf{programs} dependent on any \textbf{undefined behaviour}. The
+\textbf{implementation shall not} exceed any minimum limit imposed upon it.
+
+\section{The Language}
+\label{s-language}
+
+C$\star$ source code files are \textbf{recommended} to be given the file
+extension ``\texttt{.cst}''.
+
+\subsection{Compilation phases}
+\label{s-language-compilation_phases}
+
+The process called \textit{compilation} is divided into several sequential
+and functionally independent \textit{phases.} The \textbf{implementation}
+provides the functionality of compilation.
+
+\begin{labeling}{source text decodee}
+\item [\textbf{Source text decode}] Discern the source text's character set
+encoding and transform it into the desired form by the \textbf{implementation}
+\item [\textbf{Shebang}] If the first line of the source text begins with
+``\texttt{\#!}'', then discard it
+\item [\textbf{Lexing}] Source text is \textit{lexed} into an array of
+tokens
+\item [\textbf{Parsing}] The tokens are parsed to make an \textit{abstract
+syntax tree,} or AST
+\item [\textbf{Semantic analysis}] The AST is traversed to declare variables,
+generate symbol tables, validate laws, and determine the meaning of the
+\textbf{program}
+\item [\textbf{Optimisation}] Optional re-traversal to create better
+semantically-equivalent renditions of the \textbf{program}
+\item [\textbf{Code generation}] The \textbf{program} semantics are used to
+create the executable code for the \textbf{machine}
+\end{labeling}
+
+\subsection{Memory model}
+\label{s-language-memory_model}
+
+In C$\star$, the fundamental unit of memory is the \textit{bit.} Memory is
+composed of contiguous stretches of bits, often with certain assumptions
+permitted about its regularity and granularity of access. There are three (3)
+kinds of memory:
+
+\begin{labeling}{Constant memoryy}
+\item [\textbf{Private memory}] Same as in OpenCL parlance; in CUDA terms it
+may be called ``registers'' or ``local memory''; in general-purpose CPU terms
+it is thread-local storage. Writable, and only accessible from a single
+execution context.
+\item [\textbf{Shared memory}] Same as in CUDA parlance; in OpenCL terms it is
+called ``local memory''; in CPU terms it is typical, often heap-allocated
+memory. Writable and accessible from potentially multiple concurrent execution
+contexts, this is the only memory category that demands manual
+synchronisation.
+\item [\textbf{Constant memory}] Shared memory that is read-only for all
+execution contexts. This memory can be shared and used without need for
+synchronisation across multiple execution contexts, but is only modified at
+the moment it was declared.
+\end{labeling}
+
+Multiple threads accessing \textbf{private memory} constitutes
+\textbf{undefined behaviour}. Writing to \textbf{constant memory} at any time
+after its declaration constitutes \textbf{undefined behaviour}.
+
+In addition to the three kinds of memory, C$\star$'s memory model also
+prescribes two (2) jurisdictions of memory:
+
+\begin{labeling}{Foreign memoryy}
+\item [\textbf{Native memory}] Memory for which its entire lifetime and all of
+its access is confined to the \textbf{total system}. \textbf{Laws} can be
+enacted upon \textbf{types} of \textbf{objects} residing in native memory.
+Variable declarations default to this jurisdiction.
+\item [\textbf{Foreign memory}] Memory that may be accessed, created and/or
+destroyed outside of the \textbf{total system}. All \textbf{laws} enacted on a
+\textbf{type} of \textbf{object} in foreign memory do not apply; instead, the
+user must apply \textbf{pacts} and \textbf{marshalling} code to validate such
+data. Use of either the \texttt{extern} or \texttt{volatile} storage modifiers
+declares a variable as residing in foreign memory.
+\end{labeling}
+
+\subsection{Logic \& control flow}
+\label{s-language-logic_control_flow}
+
+C$\star$ provides functions as the vehicle for collating code. Braces provide
+block scoping for variables. Declarations must be hoisted to the top of a
+block, separated from the logic code, as they are in ANSI C. C$\star$ provides
+the \texttt{if} and \texttt{else} keywords and a ternary syntax for expressing
+conditional logic. The \texttt{do}, \texttt{for} and \texttt{while} keywords
+enable loop construction, and the \texttt{break} and \texttt{continue}
+keywords enable changing the control flow of loops. The \texttt{return}
+keyword facilitates the termination of a function's execution, and optionally
+the returning of one or more values to the function's caller. The language
+provides several logical and bitwise operators:
+
+\begin{labeling}{\textbf{\texttt{>>>=}}}
+\item [\textbf{\texttt{\&\&}}] Short-circuit / logical AND.
+\item [\textbf{\texttt{\&}}] Long-circuit / bitwise AND.
+\item [\textbf{\texttt{||}}] Short-circuit / logical OR.
+\item [\textbf{\texttt{|}}] Long-circuit / bitwise OR.
+\item [\textbf{\texttt{\textasciicircum}}] Exclusive OR / XOR.
+\item [\textbf{\texttt{!}}] Logical NOT.
+\item [\textbf{\texttt{\textasciitilde}}] Bitwise NOT.
+\item [\textbf{\texttt{<<}}] Logical bit-shift left.
+\item [\textbf{\texttt{>>}}] Logical (unsigned) bit-shift right.
+\item [\textbf{\texttt{>>>}}] Arithmetic (signed) bit-shift right.
+\item [\textbf{\texttt{+}}] Arithmetic addition.
+\item [\textbf{\texttt{-}}] Arithmetic subtraction.
+\item [\textbf{\texttt{\**}}] Arithmetic multiplication.
+\item [\textbf{\texttt{/}}] Arithmetic division.
+\item [\textbf{\texttt{\%}}] Arithmetic modulus (remainder).
+\end{labeling}
+
+All of the above operators have assignment statement variants, except for the
+logical NOT operator. Notably, this does include the short-circuit AND and OR
+operators as well: \texttt{x \&\&= y;} is equivalent to \texttt{x = x \&\& y;}
+so that \texttt{x} is only modified if it is already truthy, i.e. non-zero.
+
+There are also several conditional operators in C$\star$:
+
+\begin{labeling}{\textbf{\texttt{===}}}
+\item [\textbf{\texttt{==}}] Equal to.
+\item [\textbf{\texttt{!=}}] Not equal to.
+\item [\textbf{\texttt{<}}] Less than.
+\item [\textbf{\texttt{<=}}] Less than or equal to.
+\item [\textbf{\texttt{>=}}] Greater than or equal to.
+\item [\textbf{\texttt{>}}] Greater than.
+\end{labeling}
+
+As is the case with C, C$\star$ has no generic ``type system''; instead, all
+types are ultimately numeric, so there is no such thing as type coercion and
+also no need for any conditional operators that distinguish by their coercion
+behaviour.
+
+\subsection{Preprocessing \& headers}
+\label{s-language-preprocessing_headers}
+
+Like C, C$\star$ uses the C preprocessor, or CPP for short. Conforming
+C$\star$ implementations \textbf{must} define the CPP macro constant named
+\texttt{\_\_cstar} to value \texttt{1}. For C$\star$-specific headers, the file
+extension \texttt{.hst} is \textbf{recommended}.
+
+\subsection{The total system}
+\label{s-language-total_system}
+
+C$\star$ formalises the ``compilation unit'' as it is known in ANSI C into a
+more structurally rigourous ``total system''. When the \textbf{implementation}
+has complete analytical discretion over the constitution of a \textbf{program}
+as it exists in a single compilation unit, it can enforce \textbf{laws} upon
+all of the data types within that context.
+
+This has several implications:
+
+\begin{enumerate}
+\item The only kind of linkage C$\star$ offers is what C would call ``external
+linkage''; C's ``internal linkage'' is merely file scope with no linkage in
+C$\star$
+\item C$\star$'s provided storage modifiers become much more hierarchical and
+straightforward, ending up tiered in increasing levels of externality
+\item Since compilation units and files already have a strong correspondence,
+the user of C$\star$ must either build them in one command invocation, or
+\texttt{\#include} additional \texttt{.cst} files into one main source file as
+a single unit. C$\star$ is not authoritarian – the \textbf{implementation}
+does not care how systems are laid out, but merely that they \textit{are} laid
+out
+\end{enumerate}
+
+\subsection{Storage classing}
+\label{s-language-storage_classing}
+
+C$\star$ provides only four (4) storage modifiers:
+
+\begin{labeling}{\textbf{\texttt{registerr}}}
+\item [\textbf{\texttt{const}}] Declares a variable to be immutable. It will
+have static storage duration when declared at file scope, and automatic
+storage duration when declared at block scope.
+\item [\textbf{\texttt{extern}}] Declares a variable to require external
+linkage, in the case its ultimate storage location is outside the total 
+system. This always implies \texttt{volatile}.
+\item [\textbf{\texttt{volatile}}] Declares a variable to be
+\textit{volatile}, as in modifiable from outside of the total system. Where a
+foreign module would identify a variable by \texttt{extern}, that variable
+must be declared \texttt{volatile} in the system in which it resides.
+\item [\textbf{\texttt{register}}] Declares a local variable with additional
+semantic restrictions to allow more optimisation opportunities. This is only
+allowed at block scope and in function parameter lists, not including forward
+declarations. Variables qualified as \texttt{register} cannot have their
+address taken, and \texttt{register}-qualified arrays cannot be converted to
+pointers.
+\end{labeling}
+
+Having a \texttt{static} keyword in C$\star$ has proven redundant, as it is
+unnecessary to declare variables as having static storage duration from block
+scope, and linkage is presumed to be none unless the \texttt{volatile} or
+\texttt{extern} keywords are used in which case it is external linkage anyway.
+In C parlance, functions are always \texttt{extern}, but this does not affect
+their semantics due to the mechanism of \textbf{marshalling}.
+
+C11's \texttt{\_Thread\_local} storage modifier is also redundant, as C$\star$
+provides better semantics for construing the level of isolation provided with
+a variable than that. A sub-system can be created that is intended to run as
+the kernel of potentially many threads, even heterogeneously on various kinds
+of computers. From any system's perspective, it is just another system to
+interface with.
+
+Constant data cannot be made accessible outside of a system directly. Instead,
+the solution is to provide a function as an interface for returning the data
+instead.
+
+\subsection{Laws}
+\label{s-language-laws}
+
+C$\star$'s most novel features are the ones of ``law \& order''; these include
+the construct of \textbf{laws}, and the special kind of code at the beginning
+of functions called \textbf{marshals}.
+
+\textbf{Law}s can have a name, or be \textit{anonymous}, in the same syntax as
+\texttt{struct}s and \texttt{enum}s. Before their body there is placed a colon
+followed by a comma-separated list of one or more \textbf{types}; if the
+\textbf{law} is named, this may be omitted. Observe:
+
+\texttt{law no\_negs \\*
+\{ \\*
+\hspace*{1cm}\_ >= 0; \\*
+\}; \\*
+ \\*
+law no\_negs : s8, s16, s32, s64; \\*
+ \\*
+law : u8, u16, u32, u64 \\*
+\{ \\*
+\hspace*{1cm}\_ != 0; \\*
+\};}
+
+All assignments and modifications to variables of the given types are
+statically checked to ensure that it is impossible for the constraints of the
+\textbf{laws} to be violated in any circumstances. For example, given a
+decrementing \texttt{for} loop (shown below) and the \textbf{laws} above, it
+must be communicated statically by the programmer that it is impossible for
+the variable being enforced to ever have an illegal state. So, the following
+code is illegal:
+
+\texttt{s32 i; \\*
+u8 blocks[32]; \\*
+for(i = 16; blocks[i] != 0xFF; --i) \\*
+\{ \\*
+\hspace*{1cm}/\** ... \**/ \\*
+\}}
+
+This is illegal as it violates the named \textbf{law} ``\texttt{no\_negs}''.
+It is not clear due to truncation for brevity whether the anonymous
+\textbf{law} applying to \texttt{blocks} as a \texttt{u8[]} is violated as
+there are no assignments or modifications to it shown.
+
+\textbf{Laws} are assumed to have been violated if the variables they apply to
+are used without due process. This is the case with the careless use of the
+counter variable \texttt{i}, as it is not proactively checked to ensure it
+never decrements below zero. In this trivial program, ensuring the value is
+never negative ensures that the array access never exhibits \textbf{undefined
+behaviour}, although in the real world with C$\star$ using the \texttt{ptri}
+type would be the idiomatic solution.
+
+If there were a \textbf{law} applying to \texttt{u8[]}s that mandated the
+first element of all such types be equal to \texttt{0xFF}, then this code
+would become legal, as it could be inferred from the conditional present in
+the loop that the value of \texttt{i} never goes below zero.
+
+\subsection{Type definitions}
+\label{s-language-type_definitions}
+
+C$\star$ has only one fundamental primitive type: the bit. This is construed
+through the \texttt{bit} keyword. Additional primitives are defined as
+register arrays of bits, and the \textbf{implementation} is expected to
+optimise such arrays as appropriate for the \textbf{machine}. For example, a
+register array of 25 bits may be returned through a register at least 32 bits
+in size. A regular array of such a type will be bit-packed by default; more
+optimal access can be achieved for a given \textbf{machine} by storing or
+converting the elements into a more natural size for that \textbf{machine}.
+
+\subsubsection{Provided primitives}
+\label{s-language-type_definitions-provided_primitives}
+
+\begin{labeling}{\textbf{\texttt{ptrii}}}
+\item [\textbf{\texttt{s8}}] Signed 8-bit integer.
+\item [\textbf{\texttt{s16}}] Signed 16-bit integer.
+\item [\textbf{\texttt{s32}}] Signed 32-bit integer.
+\item [\textbf{\texttt{s64}}] Signed 64-bit integer.
+\item [\textbf{\texttt{s128}}] Signed 128-bit integer.
+\item [\textbf{\texttt{u8}}] Unsigned 8-bit integer.
+\item [\textbf{\texttt{u16}}] Unsigned 16-bit integer.
+\item [\textbf{\texttt{u32}}] Unsigned 32-bit integer.
+\item [\textbf{\texttt{u64}}] Unsigned 64-bit integer.
+\item [\textbf{\texttt{u128}}] Unsigned 128-bit integer.
+\item [\textbf{\texttt{f16}}] Half-precision floating-point number.
+\item [\textbf{\texttt{f32}}] Single-precision floating-point number.
+\item [\textbf{\texttt{f64}}] Double-precision floating-point number.
+\item [\textbf{\texttt{f128}}] Quad-precision floating-point number.
+\item [\textbf{\texttt{f256}}] Octo-precision floating-point number.
+\item [\textbf{\texttt{offs}}] Signed integer sized the same as a pointer.
+\item [\textbf{\texttt{ptri}}] Unsigned integer sized the same as a pointer.
+\end{labeling}
+
+\subsubsection{Types and ``law \& order''}
+\label{s-language-type_definitions-types_law_order}
+
+For the purposes of \textbf{law} \& order, type definitions are distinct from
+one another even as they may be ``compatible types'' in C parlance. This is
+needed to make it possible for \textbf{laws} to apply only to the intended
+data types in use. Observe:
+
+\texttt{
+typedef u8 mybyte; \\*
+ \\*
+law : mybyte; \\*
+\{ \\*
+\hspace*{1cm}\_ != 0; \\*
+\};}
+
+With the above \textbf{law} in force, variables typed as \texttt{mybyte} must
+always be non-zero. This does not apply to variables typed as \texttt{u8},
+even though they are what C would call ``compatible types''. Since in this
+situation \texttt{mybyte} is \textit{wholly more restrictive} than its base
+type \texttt{u8}, it can be cast to \texttt{u8} without special analysis.
+
+C$\star$'s \textbf{law} \& order is enforced analytically within the
+\textbf{total system}, so that the need for casting in the other direction
+goes away. In fact, explicit casting in any sense for the purposes of
+\textbf{law} \& order is unnecessary. Effectively, this means that passing a
+variable of type \texttt{u8} to a function that takes a \texttt{mybyte}
+constitutes a fully retroactive invisible cast to all possible data paths of
+that \texttt{u8} as if it were called a \texttt{mybyte}, all without any
+explicit intervention or hinting from the programmer.
+
+\subsection{Laws for structs}
+\label{s-language-laws_structs}
+
+\textbf{Laws} are applied to \texttt{struct}s in much the same way they are to
+primitive types. Dot notation is used to access the members of the
+\texttt{struct}, and this is done in the context of the \texttt{struct} as a
+whole. Observe:
+
+\texttt{struct bla \\*
+\{ \\*
+\hspace*{1cm}u32 a; \\*
+\hspace*{1cm}s16 b; \\*
+\hspace*{1cm}s16 c; \\*
+\}; \\*
+ \\*
+law foo : struct bla \\*
+\{ \\*
+\hspace*{1cm}\_.a >= 10; \\*
+\hspace*{1cm}\_.a <= 1000; \\*
+\hspace*{1cm}\_.b >= -1; \\*
+\hspace*{1cm}\_.c >= -1; \\*
+\};}
+
+The \textbf{laws} applied to \texttt{struct} members only apply to them as
+part of their parent type. In other words, they are enacted on data types, but
+those types are not affected outside that specific \texttt{struct}.
+
+Arrow notation for accessing pointer members is not allowed. See the next
+section for dealing with array and pointer types in \textbf{laws}.
+
+\subsection{Laws for arrays and pointer types}
+\label{s-language-laws_arrays_pointer_types}
+
+C$\star$ is fairly cohesive with its syntactical provisions for arrays and
+pointer types. \textbf{Laws} can be applied to all members of an array
+individually using a star \texttt{\**}, or to specific members as desired.
+Laws applied to array types also apply to pointer types in the situations they
+are treated as arrays, i.e. used with the subscript operator \texttt{[]}.
+In any other case, pointer types are treated as the numerics that they are,
+as shown in previous sections. Observe:
+
+\texttt{law foo : u16[] \\*
+\{ \\*
+\hspace*{1cm}\_[0] != 0; \\*
+\hspace*{1cm}\_[\**] != 0xFFFF; \\*
+\};}
+
+Laws applied to specific members do not construe any information about the
+size of an array, but merely apply if and when the specified element is dealt
+with. If a law is applied to the $n^{th}$ element of an array, arrays must
+have an $n^{th}$ element for that to be in effect.
+
+Another powerful feature for array \textbf{laws} is that the index of the
+array can also be qualified as an expression in much the same way the value of
+it can. A bracket notation with no attached variable being subscripted is used
+to denote this, like so:
+
+\texttt{law bar : u16[] \\*
+\{ \\*
+\hspace*{1cm}\_[0] != 0; \\*
+\hspace*{1cm}[\**] \% 2 == 0 \\*
+\hspace*{1cm}\{ \\*
+\hspace*{2cm}\_ != 0xFFFF; \\*
+\hspace*{1cm}\}; \\*
+\};}
+
+This \textbf{law} asserts the following:
+
+\begin{enumerate}
+\item the first element of \texttt{u16[]}s cannot be zero; \textbf{and}
+\item where the index of a \texttt{u16[]} is \textit{even}, the value therein
+cannot equal \texttt{0xFFFF} (65,535).
+\end{enumerate}
+
+One thing that cannot be expressed plainly in \textbf{laws} is the notion of a
+``valid pointer'', for example a pointer to valid memory returned from
+\texttt{malloc()}. This is dealt with in the next section using \textit{data
+tagging.}
+
+\subsection{Tagging data in the AST}
+\label{s-language-tagging_data_ast}
+
+As is with \textbf{laws}, \textbf{tags} are information kept and acted upon at
+compile time. \textbf{Tags} specifically are string literals kept in the AST
+that can have certain meanings depending on their contents. This is useful for
+communicating things that cannot be ascertained imperatively, providing an
+alternative \textit{declarative} solution instead. One common case of this is
+a function returning a pointer, and the caller needing that pointer to be
+``valid'' according to some unspecified conditions only privy to the callee.
+Observe:
+
+\texttt{
+void \** malloc( ptri sz ) \\*
+\{ \\*
+\hspace*{1cm}void \** mem \{ `alloc` \}; \\*
+ \\*
+\hspace*{1cm}/\** ... \**/ \\*
+ \\*
+\hspace*{1cm}if( err ) \\*
+\hspace*{1cm}\{ \\*
+\hspace*{2cm}return NULL; \\*
+\hspace*{1cm}\} \\*
+ \\*
+\hspace*{1cm}return mem; \\*
+\}}
+
+In this function, the variable \texttt{mem} is decorated with a tag by the
+name of \texttt{alloc}. Wherever this value flows through the call graph
+within the total system, this tag will go with it, and be available for
+assertions in the bodies of \textbf{laws}, where the brace format follows
+the field, acting as a boolean expression like so:
+
+\texttt{
+struct foo \\*
+\{ \\*
+\hspace*{1cm}void \** obj; \\*
+\hspace*{1cm}ptri sz; \\*
+\}; \\*
+ \\*
+law : struct foo \\*
+\{ \\*
+\hspace*{1cm}\_.obj \{ `alloc` \}; \\*
+\hspace*{1cm}\_.sz > 0; \\*
+\};}
+
+If the \texttt{.obj} member of any \texttt{struct foo} was not tagged as
+allocated like shown above and is read anywhere, the law will be violated
+and compilation will halt due to illegal code.
+
+Wherever the brace tagging form is applied, multiple tags can be applied or
+evaluated at once using the comma operator in between each backticked tag.
+
+\subsection{Jurisdiction and pacts}
+\label{s-language-jurisdiction_pacts}
+
+TBW
+
+\subsection{Marshalling}
+\label{s-language-marshalling}
+
+TBW
+
+\section{Lexing}
+\label{s-lexing}
+
+The permitted encodings of source text is left to the \textbf{implementation}.
+This document refers to source text agnostically to this, in terms of Unicode
+codepoints. More exactly, this document will refer to the text as a sequence
+of \textbf{runes}.
+
+The text is tokenised into whitespace, end-of-line tokens, comments, and
+finally regular tokens. It is then terminated with a special end-of-file
+token.
+
+The text is split into tokens using a ``maximal munch'' algorithm; in other
+words, the lexer attempts to create the longest possible token.
+
+\subsection{Runes}
+\label{s-lexing-runes_characters}
+
+\texttt{\textit{Rune} := \textit{a single Unicode codepoint}}
+
+\texttt{\textit{Character} := \underline{\textit{PrintableChar}} |
+\underline{\textit{NonPrintableChar}}}
+
+\texttt{\textit{NonPrintableChar} := \textit{ASCII 0 .. 31} |
+\textit{ASCII 127}}
+
+\texttt{\textit{PrintableChar} : \textit{ASCII 32 .. 126}}
+
+\subsection{End-of-file}
+\label{s-lexing-endoffile}
+
+\texttt{\textit{EndOfFile} := \textit{physical end of the file} |
+\underline{\textbf{U+0000}} | \underline{\textbf{U+001A}}}
+
+The source text is terminated by whichever of these appears first.
+
+\subsection{End-of-line}
+\label{s-lexing-endofline}
+
+\texttt{\textit{EndOfLine} := \underline{\textbf{U+000D}}
+\underline{\textbf{U+000A}} | \underline{\textbf{U+000D}} |
+\underline{\textbf{U+000A}} | \underline{\textbf{U+2028}} |
+\underline{\textbf{U+2029}} | \underline{\textit{EndOfFile}}}
+
+\subsection{Whitespace}
+\label{s-lexing-whitespace}
+
+\texttt{\textit{Whitespace} := \underline{\textit{Space}} | \underline{\textit{Space}} \underline{\textit{Whitespace}}}
+
+\texttt{\textit{Space} := \underline{\textbf{U+0020}} |
+\underline{\textbf{U+0009}} | \underline{\textbf{U+000B}} |
+\underline{\textbf{U+000C}}}
+
+\subsection{Comments}
+\label{s-lexing-comments}
+
+\texttt{\textit{Comment} := \textbf{/\**} \underline{\textit{Runes}}
+\textbf{\**/}}
+
+\texttt{\textit{Runes} := \underline{\textit{Rune}}
+\underline{\textit{Runes}} | \underline{\textit{Rune}}}
+
+\subsection{Tokens}
+\label{s-lexing-tokens}
+
+\texttt{\textit{Token} := \underline{\textit{ASCIIStringLiteral}} |
+\underline{\textit{UnicodeStringLiteral}} | \underline{\textit{CharLiteral}} |
+\\* \underline{\textit{RuneLiteral}} | \underline{\textit{NumericLiteral}} |
+\underline{\textit{Keyword}} | \underline{\textit{BuiltinType}} |
+\underline{\textit{TypeModifier}} | \\* \underline{\textit{Identifier}} |
+\textbf{>>>=} | \textbf{>>=} | \textbf{<<=} | \textbf{||=} | \textbf{|=} |
+\textbf{\&\&=} | \textbf{\&=} | \textbf{\**=} |
+\textbf{\textasciicircum\textasciicircum=} | \textbf{\textasciicircum=} |
+\\* \textbf{+=} | \textbf{-=} | \textbf{/=} | \textbf{\%=} |
+\textbf{\textasciitilde=} | \textbf{<=} | \textbf{>=} | \textbf{!=} |
+\textbf{==} | \textbf{=} | \textbf{>>>} | \textbf{>>} | \textbf{<<} |
+\textbf{||} | \textbf{|} | \\* \textbf{\&\&} | \textbf{\&} | \textbf{\**} |
+\textbf{\textasciicircum\textasciicircum} | \textbf{\textasciicircum} |
+\textbf{++} | \textbf{+} | \textbf{--} | \textbf{-} | \textbf{/} |
+\textbf{\%} | \textbf{\textasciitilde} | \textbf{<} | \textbf{>} |
+\textbf{!} | \textbf{...} | \textbf{.} | \\* \textbf{?} | \textbf{,} |
+\textbf{;} | \textbf{:} | \textbf{(} | \textbf{)} | \textbf{[} | \textbf{]} |
+\textbf{\{} | \textbf{\}}}
+
+\subsection{Identifiers}
+\label{s-lexing-identifiers}
+
+\texttt{\textit{Identifier} := \underline{\textit{IdentifierStart}}
+\underline{\textit{IdentifierRunes}} | \underline{\textit{IdentifierStart}}}
+
+\texttt{\textit{IdentifierRunes} := \underline{\textit{IdentifierRune}}
+\underline{\textit{IdentifierRunes}} | \underline{\textit{IdentifierRune}}}
+
+\texttt{\textit{IdentifierStart} := \textbf{\_} | \textbf{A} | \textbf{B} |
+\textbf{C} | \textbf{D} | \textbf{E} | \textbf{F} | \textbf{G} | \textbf{H} |
+\textbf{I} | \textbf{J} | \textbf{K} | \textbf{L} | \\* \textbf{M} |
+\textbf{N} | \textbf{O} | \textbf{P} | \textbf{Q} | \textbf{R} | \textbf{S} | \textbf{T} | \textbf{U} | \textbf{V} | \textbf{W} | \textbf{X} | \textbf{Y} | \textbf{Z} | \textbf{a} | \textbf{b} | \textbf{c} | \textbf{d} | \\* \textbf{e} | \textbf{f} | \textbf{g} | \textbf{h} | \textbf{i} | \textbf{j} | \textbf{k} | \textbf{l} | \textbf{m} | \textbf{n} | \textbf{o} | \textbf{p} | \textbf{q} | \textbf{r} | \textbf{s} | \textbf{t} | \textbf{u} | \textbf{v} | \\* \textbf{w} | \textbf{x} | \textbf{y} | \textbf{z}}
+
+\texttt{\textit{IdentifierRune} := \underline{\textit{IdentifierStart}} |
+\textbf{0} | \textbf{1} | \textbf{2} | \textbf{3} | \textbf{4} | \textbf{5} |
+\textbf{6} | \textbf{7} | \textbf{8} | \textbf{9}}
+
+\subsection{String literals}
+\label{s-lexing-string_literals}
+
+\texttt{\textit{ASCIIStringLiteral} := \textbf{"} \underline{\textit{StringChars}}
+\textbf{"}}
+
+\texttt{\textit{StringChars} := \underline{\textit{StringChar}}
+\underline{\textit{StringChars}} | \underline{\textit{StringChar}}}
+
+\texttt{\textit{StringChar} := \underline{\textit{ASCIIEscapeSequence}} |
+\underline{\textit{PrintableChar}}}
+
+\texttt{\textit{ASCIIEscapeSequence} :=
+\textbf{\textbackslash\textbackslash} | \textbf{\textbackslash{}0} |
+\textbf{\textbackslash{}a} | \textbf{\textbackslash{}b} |
+\textbf{\textbackslash{}f} | \textbf{\textbackslash{}n} |
+\textbf{\textbackslash{}r} | \textbf{\textbackslash{}t} |
+\textbf{\textbackslash{}v} | \\* \textbf{\textbackslash}
+\underline{\textit{OctDigit}} \underline{\textit{OctDigit}}
+\underline{\textit{OctDigit}}}
+
+\texttt{\textit{UnicodeStringLiteral} := \textbf{@"}
+\underline{\textit{StringRunes}} \textbf{"}}
+
+\texttt{\textit{StringRunes} := \underline{\textit{StringRune}}
+\underline{\textit{StringRunes}} | \underline{\textit{StringRune}}}
+
+\texttt{\textit{StringRune} := \underline{\textit{UnicodeEscapeSequence}} |
+\underline{\textit{Rune}}}
+
+\texttt{\textit{UnicodeEscapeSequence} :=
+\underline{\textit{ASCIIEscapeSequence}} | \\* \textbf{\textbackslash{}u}
+\underline{\textit{HexDigit}} \underline{\textit{HexDigit}}
+\underline{\textit{HexDigit}} \underline{\textit{HexDigit}} | \\*
+\textbf{\textbackslash{}U} \underline{\textit{HexDigit}}
+\underline{\textit{HexDigit}} \underline{\textit{HexDigit}}
+\underline{\textit{HexDigit}} \underline{\textit{HexDigit}}
+\underline{\textit{HexDigit}} \underline{\textit{HexDigit}}
+\underline{\textit{HexDigit}}}
+
+\subsection{Rune and character literals}
+\label{s-lexing-rune_character_literals}
+
+\texttt{\textit{CharLiteral} := \textbf{'}
+\underline{\textit{SingleQuotedChar}} \textbf{'}}
+
+\texttt{\textit{SingleQuotedRune} := \underline{\textit{ASCIIEscapeSequence}}
+| \underline{\textit{PrintableChar}}}
+
+\texttt{\textit{RuneLiteral} := \textbf{@'}
+\underline{\textit{SingleQuotedRune}} \textbf{'}}
+
+\texttt{\textit{SingleQuotedRune} :=
+\underline{\textit{UnicodeEscapeSequence}} | \underline{\textit{Rune}}}
+
+\subsection{Numeric literals}
+\label{s-lexing-numeric_literals}
+
+\texttt{\textit{NumericLiteral} := \underline{\textit{IntegerLiteral}} |
+\underline{\textit{FloatLiteral}}}
+
+\texttt{\textit{IntegerLiteral} := \underline{\textit{Integer}}
+\underline{\textit{IntegerSuffix}} | \underline{\textit{Integer}}}
+
+\texttt{\textit{Integer} := \underline{\textit{OctInteger}} |
+\underline{\textit{DecInteger}} | \underline{\textit{HexInteger}}}
+
+\texttt{\textit{IntegerSuffix} := \textbf{u} | \textbf{U} | \textbf{l} |
+\textbf{L} | \textbf{ul} | \textbf{Ul} | \textbf{uL} | \textbf{UL} |
+\textbf{lu} | \textbf{Lu} | \textbf{lU} | \textbf{LU}}
+
+\texttt{\textit{OctInteger} := \underline{\textit{OctDigit}}
+\underline{\textit{OctInteger}} | \underline{\textit{OctDigit}}}
+
+\texttt{\textit{OctDigit} := \textbf{0} | \textbf{1} | \textbf{2} |
+\textbf{3} | \textbf{4} | \textbf{5} | \textbf{6} | \textbf{7}}
+
+\texttt{\textit{DecInteger} := \underline{\textit{NonZeroDigit}}
+\underline{\textit{DecDigits}} | \underline{\textit{NonZeroDigit}}}
+
+\texttt{\textit{NonZeroDigit} := \textbf{1} | \textbf{2} | \textbf{3} |
+\textbf{4} | \textbf{5} | \textbf{6} | \textbf{7} | \textbf{8} | \textbf{9}}
+
+\texttt{\textit{DecDigits} := \underline{\textit{DecDigit}}
+\underline{\textit{DecDigits}} | \underline{\textit{DecDigit}}}
+
+\texttt{\textit{DecDigit} := \textbf{0} | \underline{\textit{NonZeroDigit}}}
+
+\texttt{\textit{HexInteger} := \underline{\textit{HexPrefix}}
+\underline{\textit{HexDigits}}}
+
+\texttt{\textit{HexPrefix} := \textbf{0x} | \textbf{0X}}
+
+\texttt{\textit{HexDigits} := \underline{\textit{HexDigit}}
+\underline{\textit{HexDigits}} | \underline{\textit{HexDigit}}}
+
+\texttt{\textit{HexDigit} := \underline{\textit{DecDigit}} |
+\underline{\textit{HexLetters}}}
+
+\texttt{\textit{HexLetters} := \textbf{A} | \textbf{B} | \textbf{C} |
+\textbf{D} | \textbf{E} | \textbf{F} | \textbf{a} | \textbf{b} | \textbf{c} |
+\textbf{d} | \textbf{e} | \textbf{f}}
+
+\texttt{\textit{FloatLiteral} := \underline{\textit{Float}}
+\underline{\textit{FloatSuffix}} \underline{\textit{ImaginarySuffix}} | \\*
+\underline{\textit{Float}} \underline{\textit{RealSuffix}}
+\underline{\textit{ImaginarySuffix}} | \underline{\textit{Float}}
+\underline{\textit{FloatSuffix}} | \underline{\textit{Float}}
+\underline{\textit{RealSuffix}} | \\* \underline{\textit{Float}}
+\underline{\textit{ImaginarySuffix}} | \underline{\textit{Float}}}
+
+\texttt{\textit{Float} := \underline{\textit{DecFloat}} |
+\underline{\textit{HexFloat}}}
+
+\texttt{\textit{DecFloat} := \underline{\textit{DecDigits}} \textbf{.}
+\underline{\textit{DecDigits}} \underline{\textit{Exponent}} | 
+\underline{\textit{DecDigits}} \textbf{.} \underline{\textit{DecDigits}} | \\*
+\textbf{.} \underline{\textit{DecDigits}} \underline{\textit{DecExponent}} |
+\textbf{.} \underline{\textit{DecDigits}} | \underline{\textit{DecDigits}}
+\underline{\textit{DecExponent}} | \underline{\textit{DecDigits}} \textbf{.}}
+
+\texttt{\textit{DecExponent} := \underline{\textit{DecExponentStart}}
+\underline{\textit{DecDigits}}}
+
+\texttt{\textit{DecExponentStart} := \textbf{e+} | \textbf{E+} | \textbf{e-} |
+\textbf{E-} | \textbf{e} | \textbf{E}}
+
+\texttt{\textit{HexFloat} := \underline{\textit{HexPrefix}}
+\underline{\textit{HexDigits}} \textbf{.} \underline{\textit{HexDigits}}
+\underline{\textit{HexExponent}} | \\* \underline{\textit{HexPrefix}}
+\textbf{.} \underline{\textit{HexDigits}} \underline{\textit{HexExponent}} |
+\underline{\textit{HexPrefix}} \underline{\textit{HexDigits}}
+\underline{\textit{HexExponent}}}
+
+\texttt{\textit{HexExponent} := \underline{\textit{HexExponentStart}}
+\underline{\textit{DecDigits}}}
+
+\texttt{\textit{HexExponentStart} := \textbf{p+} | \textbf{P+} | \textbf{p-} |
+\textbf{P-} | \textbf{p} | \textbf{P}}
+
+\texttt{\textit{FloatSuffix} := \textbf{f} | \textbf{F}}
+
+\texttt{\textit{RealSuffix} := \textbf{l} | \textbf{L}}
+
+\texttt{\textit{ImaginarySuffix} := \textbf{i} | \textbf{I}}
+
+\subsection{Keywords}
+\label{s-lexing-keywords}
+
+Keywords are reserved identifiers. They fall into one of two categories:
+declarators and control flow. The keywords \texttt{enum},
+\texttt{law}, \texttt{noalloc}, \texttt{nothrow}, \texttt{noreturn},
+\texttt{pure}, \texttt{struct} and \texttt{union} keywords are all of the
+declarator keywords, and the remaining ones are for control flow.
+
+\texttt{\textit{Keyword} := \textbf{areaof} | \textbf{break} | \textbf{case} |
+\textbf{continue} | \textbf{default} | \textbf{do} | \textbf{else} |
+\textbf{enum} | \\* \textbf{for} | \textbf{goto} |
+\textbf{if} | \textbf{law} | \textbf{marshal} | \textbf{noalloc} |
+\textbf{nothrow} | \textbf{noreturn} | \textbf{pure} | \\*
+\textbf{return} | \textbf{sizeof} | \textbf{struct} | \textbf{switch} |
+\textbf{typedef} | \textbf{union} | \textbf{while}}
+
+\subsection{Builtin Types}
+\label{s-lexing-builtin_types}
+
+C$\star$ provides sixteen (16) primitive base types. The \texttt{void} type
+is an incomplete type that cannot be completed. The \texttt{char} type is used
+for holding text or other 8-bit character data; its signedness is
+\textbf{implementation}-defined. The \texttt{rune} type is used for holding
+Unicode code points, being at least 21 bits wide. The \texttt{ptri} type is an
+integral sized the same to the \textbf{machine}'s pointers; it is unsigned.
+The \texttt{offs} type is defined the same as \texttt{ptri} but it is signed,
+as it is intended for use with offsets. The \texttt{s\{8,16,32,64\}} are
+signed integers 8, 16, 32 and 64 bits wide, respectively. The
+\texttt{u\{8,16,32,64\}} are unsigned integers 8, 16, 32 and 64 bits wide,
+respectively. The \texttt{f\{16,32,64\}} are IEEE 754 compliant binary
+floating-point numbers with half, single and double precision, respectively.
+
+\texttt{\textit{BuiltinType} := \textbf{char} | \textbf{f16} | \textbf{f32} |
+\textbf{f64} | \textbf{offs} | \textbf{ptri} | \textbf{s8} | \textbf{s16} |
+\textbf{s32} | \\* \textbf{s64} | \textbf{rune} | \textbf{u8} | \textbf{u16} |
+\textbf{u32} | \textbf{u64} | \textbf{void}}
+
+\subsection{Storage modifiers}
+\label{s-lexing-storage_modifiers}
+
+Storage modifiers are a kind of keywords that change the meaning of a
+variable declaration’s storage class. They precede the typing of a variable
+in its declaration. Declaring a variable with \texttt{const} causes it to be
+construed as belonging in \textbf{constant memory}. Declaring a variable with
+\texttt{volatile} causes it to be construed as residing in \textbf{shared
+memory}, and also construes it as being modifiable from outside the
+\textbf{program}. Declaring a variable with \texttt{extern} construes it as a
+``forward declaration'', meaning the true location of the variable is defined
+outside the \textbf{program}.
+
+\texttt{\textit{StorageModifier} := \textbf{const} | \textbf{extern} |
+\textbf{register} | \textbf{volatile}}
+
+\clearpage{}
+
+\end{document}
