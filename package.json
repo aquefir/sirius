@@ -34,9 +34,6 @@
 	"directories": {
 		"doc": "doc"
 	},
-	"scripts": {
-		"main": "ts-node src/main.ts"
-	},
 	"dependencies": {
 		"@types/node": "^15.0.1",
 		"ts-node": "^9.1.1",
