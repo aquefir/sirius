@@ -7,9 +7,6 @@
 
 'use strict'
 
-import * as FS from 'fs'
-import * as Path from 'path'
-
 import { lexAll, lexemeToString, Lexeme } from './lexa'
 
 const kHelpText = 'Sirius™ C*\nThe brightest star in the night sky.\n\n' +
@@ -28,65 +25,26 @@ const kHelpText = 'Sirius™ C*\nThe brightest star in the night sky.\n\n' +
 	'For now, Sirius C* compiler translates C* code to ANSI C code.\n' +
 	'No options are available to control the output just yet.'
 
-type InputFile = { stdio: boolean, file: string }
-
 const main = (args: string[]): number => {
-	console.error('')
-	if(args.length === 1
-	|| args.indexOf('-h') !== -1
+	if(args.indexOf('-h') !== -1
 	|| args.indexOf('--help') !== -1) {
+		console.error('')
 		console.error(kHelpText)
 		console.error('')
 		return 0
 	}
-	let output: string = ''
-	let input: InputFile[] = []
-	for(let i = 1; i < args.length; ++i) {
-		if(args[i] === '-o'
-		|| args[i] === '--output') {
-			if(i + 1 >= args.length) {
-				console.error('Hanging ‘' + args[i] + '’ argument. Exiting...')
-				return 127
-			}
-			output = args[i + 1]
-			++i
-		} else if(args[i].startsWith('--output=')) {
-			output = args[i].substr('--output='.length)
-		} else if(args[i] === '-') {
-			if(input.length > 0) {
-				console.error('Cannot read stdin with other inputs. Exiting...')
-				return 127
-			} else {
-				input.push({ stdio: true, file: 'stdin' })
-			}
-		} else if(args[i].startsWith('-')) {
-			console.error('Unknown flag or option ‘' + args[i] + '’. Exiting...')
-			return 127
-		} else {
-			input.push({ stdio: false, file: args[i] })
-		}
+	const input: Buffer | null = process.stdin.read()
+	if(input == null) {
+		console.error('')
+		console.error('No input given via stdin. Exiting...')
+		console.error('')
+		return 127
 	}
-	let stdinRead = false
-	for(let i = 0; i < input.length; ++i) {
-		console.log('Reading ‘' + input[i].file + '’...')
-		const lexemes: Lexeme[] = lexAll(!stdinRead && input[i].stdio ?
-			process.stdin.read() : FS.readFileSync(input[i].file, 'utf8'))
-		if(input[i].stdio) {
-			stdinRead = true
-		}
-		for(let j = 0; j < lexemes.length; ++j) {
-			const lexeme = lexemeToString(lexemes[j]) + '\n'
-			if(output === '') {
-				process.stdout.write(lexeme)
-			} else {
-				FS.writeFile(output, lexeme, 'utf8',
-					(err: NodeJS.ErrnoException): void => {
-						if(err) { console.error(err) }
-					})
-			}
-		}
+	const lexemes: Lexeme[] = lexAll(input.toString())
+	for(let j = 0; j < lexemes.length; ++j) {
+		const lexeme = lexemeToString(lexemes[j]) + '\n'
+		process.stdout.write(lexeme)
 	}
-	console.error('')
 	return 0
 }
 

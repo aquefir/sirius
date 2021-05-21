@@ -472,7 +472,6 @@ export const lexemeToString = (input: Lexeme): string => {
 
 const lex = (input: string, state: State): Lexeme => {
 	for(let i = 0; i < checkers.length; ++i) {
-		console.error(checkers[i])
 		const opt: LexemeOption = checkers[i](input, state)
 		if(opt.hit) {
 			state.index += opt.count
