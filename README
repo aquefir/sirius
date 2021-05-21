@@ -159,21 +159,34 @@ the language.
 2.1.1. TYPES OF MEMORY.
 
 Private memory:
-Same as in OpenCL parlance; in CUDA terms it may be called “registers” or “local memory”; in general-purpose CPU terms it is thread-local storage. Writable, and only accessible from a single execution context.
+Same as in OpenCL parlance; in CUDA terms it may be called “registers” or
+“local memory”; in general-purpose CPU terms it is thread-local storage.
+Writable, and only accessible from a single execution context.
 
 Shared memory:
-Same as in CUDA parlance; in OpenCL terms it is called “local memory”; in CPU terms it is typical, often heap-allocated memory. Writable and accessible from potentially multiple concurrent execution contexts; this is the only memory category that demands manual synchronisation.
+Same as in CUDA parlance; in OpenCL terms it is called “local memory”; in CPU
+terms it is typical, often heap-allocated memory. Writable and accessible from
+potentially multiple concurrent execution contexts; this is the only memory
+category that demands manual synchronisation.
 
 Constant memory:
-Shared memory that is read-only for all execution contexts. This memory can be shared and used without need for synchronisation across multiple execution contexts, but is only modified at the moment it was declared.
+Shared memory that is read-only for all execution contexts. This memory can be
+shared and used without need for synchronisation across multiple execution
+contexts, but is only modified at the moment it was declared.
 
 2.1.2. JURISDICTIONS OF MEMORY.
 
 Native memory:
-Memory for which its entire lifetime and all of its access is confined to the total system. Laws can be enacted upon types of objects residing in native memory. Variable declarations default to this jurisdiction.
+Memory for which its entire lifetime and all of its access is confined to the
+total system. Laws can be enacted upon types of objects residing in native
+memory. Variable declarations default to this jurisdiction.
 
 Foreign memory:
-Memory that may be accessed, created and/or destroyed outside of the total system. All laws enacted on a type of object in foreign memory do not apply; instead, the user must apply pacts and marshalling code to validate such data. Use of either the extern or volatile storage modifiers declares a variable as residing in foreign memory.
+Memory that may be accessed, created and/or destroyed outside of the total
+system. All laws enacted on a type of object in foreign memory do not apply;
+instead, the user must apply pacts and marshalling code to validate such data.
+Use of either the extern or volatile storage modifiers declares a variable as
+residing in foreign memory.
 
 2.2. REGISTER STRUCTS.
 
@@ -195,7 +208,9 @@ u8.cst:
 	}
 	u8;
 
-This also uses a feature of C* called inline structs, which allows users to declare a struct type with a single member named _, and access its instances directly by name without any dot notation, like a primitive. 
+This also uses a feature of C* called inline structs, which allows users to
+declare a struct type with a single member named _, and access its instances
+directly by name without any dot notation, like a primitive. 
 
 2.3. ATTRIBUTES.
 
