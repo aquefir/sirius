@@ -21,9 +21,101 @@ enum
 	MAX_LEXEME
 };
 
+enum
+{
+	KEYWORD_BIT,
+	KEYWORD_BREAK,
+	KEYWORD_CASE,
+	KEYWORD_CONST,
+	KEYWORD_CONTINUE,
+	KEYWORD_DEFAULT,
+	KEYWORD_DO,
+	KEYWORD_ELSE,
+	KEYWORD_ENUM,
+	KEYWORD_EXTERN,
+	KEYWORD_FOR,
+	KEYWORD_GOTO,
+	KEYWORD_IF,
+	KEYWORD_LAW,
+	KEYWORD_MARSHAL,
+	KEYWORD_NOALLOC,
+	KEYWORD_NORETURN,
+	KEYWORD_PURE,
+	KEYWORD_REGISTER,
+	KEYWORD_RETURN,
+	KEYWORD_SIZEOF,
+	KEYWORD_STRUCT,
+	KEYWORD_SWITCH,
+	KEYWORD_TYPEDEF,
+	KEYWORD_UNION,
+	KEYWORD_VOLATILE,
+	KEYWORD_WHILE,
+	MAX_KEYWORD
+};
+
+enum
+{
+	OP_SIGNED_RSHIFT_SET,
+	OP_RSHIFT_SET,
+	OP_ROTATE_LEFT_SET,
+	OP_LSHIFT_SET,
+	OP_OROR_SET,
+	OP_OR_SET,
+	OP_ANDAND_SET,
+	OP_AND_SET,
+	OP_MUL_SET,
+	OP_POW_SET,
+	OP_XOR_SET,
+	OP_PLUS_SET,
+	OP_MINUS_SET,
+	OP_DIV_SET,
+	OP_MOD_SET,
+	OP_BITNOT_SET,
+	OP_LE,
+	OP_GE,
+	OP_NOTEQUALTO,
+	OP_EQUALTO,
+	OP_SET,
+	OP_SIGNED_RSHIFT,
+	OP_RSHIFT,
+	OP_ROTATE_LEFT,
+	OP_LSHIFT,
+	OP_OROR,
+	OP_OR,
+	OP_ANDAND,
+	OP_AND,
+	OP_MUL,
+	OP_POW,
+	OP_XOR,
+	OP_PLUSPLUS,
+	OP_PLUS,
+	OP_MINUSMINUS,
+	OP_MINUS,
+	OP_DIV,
+	OP_MOD,
+	OP_BITNOT,
+	OP_LT,
+	OP_GT,
+	OP_NOT,
+	OP_DOTDOTDOT,
+	OP_DOT,
+	OP_QUESTION,
+	OP_COMMA,
+	OP_SEMICOLON,
+	OP_COLON,
+	OP_LPAREN,
+	OP_RPAREN,
+	OP_LBRACK,
+	OP_RBRACK,
+	OP_LBRACE,
+	OP_RBRACE,
+	MAX_OP
+};
+
 struct lexeme
 {
 	unsigned type;
+	unsigned value_sz;
 	char * value;
 };
 
@@ -47,9 +139,9 @@ static const char * const keywords[] = {
 };
 
 static const char * const operators[] = {
-	">>>=", ">>=", "<<=", "||=", "|=", "&&=", "&=", "*=", "^^=", "^=",
+	">>>=", ">>=", "<<<=", "<<=", "||=", "|=", "&&=", "&=", "*=", "^^=", "^=",
 	"+=", "-=", "/=", "%=", "~=", "<=", ">=", "!=", "==", "=", ">>>", ">>",
-	"<<", "||", "|", "&&", "&", "*", "^^", "^", "++", "+", "--", "-",
+	"<<<", "<<", "||", "|", "&&", "&", "*", "^^", "^", "++", "+", "--", "-",
 	"/", "%", "~", "<", ">", "!", "...", ".", "?", ",", ";", ":", "(", ")",
 	"[", "]", "{", "}"
 };
@@ -104,4 +196,21 @@ static int is_newline( char c )
 static int is_wspace( char c )
 {
 	return c == ' ' || c == '\f' || c == '\t' || c == '\v';
+}
+
+static struct lexeme_opt check_eof( const char * input, unsigned input_sz, struct state * state )
+{
+	const struct lexeme lexeme = {
+		LEXEME_EOF,
+		&(input[state->index]),
+		1
+	};
+	const struct lexeme_opt ret = {
+		state->index >= input_sz || input[state->index] == 0x00
+			|| input[state->index] == 0x1A,
+		lexeme,
+		0
+	};
+
+	return ret;
 }
