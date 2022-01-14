@@ -238,6 +238,7 @@ provides several logical and bitwise operators:
 \item [\textbf{\texttt{!}}] Logical NOT.
 \item [\textbf{\texttt{\textasciitilde}}] Bitwise NOT.
 \item [\textbf{\texttt{<<}}] Logical bit-shift left.
+\item [\textbf{\texttt{<<<}}] Bitwise rotate left.
 \item [\textbf{\texttt{>>}}] Logical (unsigned) bit-shift right.
 \item [\textbf{\texttt{>>>}}] Arithmetic (signed) bit-shift right.
 \item [\textbf{\texttt{+}}] Arithmetic addition.
@@ -545,58 +546,23 @@ One thing that cannot be expressed plainly in \textbf{laws} is the notion of a
 \texttt{malloc()}. This is dealt with in the next section using \textit{data
 tagging.}
 
-\subsection{Tagging data in the AST}
-\label{s-language-tagging_data_ast}
+\subsection{Attributes in the AST}
+\label{s-language-attributes_ast}
 
-As is with \textbf{laws}, \textbf{tags} are information kept and acted upon at
-compile time. \textbf{Tags} specifically are string literals kept in the AST
-that can have certain meanings depending on their contents. This is useful for
-communicating things that cannot be ascertained imperatively, providing an
-alternative \textit{declarative} solution instead. One common case of this is
-a function returning a pointer, and the caller needing that pointer to be
-``valid'' according to some unspecified conditions only privy to the callee.
-Observe:
-
-\texttt{
-void \** malloc( ptri sz ) \\*
-\{ \\*
-\hspace*{1cm}void \** mem \{ `alloc` \}; \\*
- \\*
-\hspace*{1cm}/\** ... \**/ \\*
- \\*
-\hspace*{1cm}if( err ) \\*
-\hspace*{1cm}\{ \\*
-\hspace*{2cm}return NULL; \\*
-\hspace*{1cm}\} \\*
- \\*
-\hspace*{1cm}return mem; \\*
-\}}
-
-In this function, the variable \texttt{mem} is decorated with a tag by the
-name of \texttt{alloc}. Wherever this value flows through the call graph
-within the total system, this tag will go with it, and be available for
-assertions in the bodies of \textbf{laws}, where the brace format follows
-the field, acting as a boolean expression like so:
+As is with \textbf{laws}, \textbf{attributes} are information kept and acted
+upon at compile time. \textbf{Attributes} specifically are string literals
+kept in the AST that provide context about the meaning of a data type. This is
+useful for communicating things that cannot be ascertained imperatively,
+providing an alternative \textit{declarative} solution instead. For example,
+the compiler is informed about signed numbers using two's complement with the
+use of \textbf{attributes}:
 
 \texttt{
-struct foo \\*
+typedef register struct \\*
 \{ \\*
-\hspace*{1cm}void \** obj; \\*
-\hspace*{1cm}ptri sz; \\*
-\}; \\*
- \\*
-law : struct foo \\*
-\{ \\*
-\hspace*{1cm}\_.obj \{ `alloc` \}; \\*
-\hspace*{1cm}\_.sz > 0; \\*
-\};}
-
-If the \texttt{.obj} member of any \texttt{struct foo} was not tagged as
-allocated like shown above and is read anywhere, the law will be violated
-and compilation will halt due to illegal code.
-
-Wherever the brace tagging form is applied, multiple tags can be applied or
-evaluated at once using the comma operator in between each backticked tag.
+\hspace*{1cm}bit _[8] \{ "signed2" \}; \\*
+\} \\*
+s8;}
 
 \subsection{Jurisdiction and pacts}
 \label{s-language-jurisdiction_pacts}
