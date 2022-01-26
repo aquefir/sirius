@@ -1,7 +1,7 @@
 /****************************************************************************\
- *                                Sirius™ C*                                *
+ *                                Sirius  C*                                *
  *                                                                          *
- *                      Copyright © 2020-2021 Aquefir.                      *
+ *                     Copyright (C) 2020-2021 Aquefir.                     *
  *                 Released under Artisan Software Licence.                 *
 \****************************************************************************/
 
@@ -38,7 +38,6 @@ enum
 	KEYWORD_IF,
 	KEYWORD_LAW,
 	KEYWORD_MARSHAL,
-	KEYWORD_NOALLOC,
 	KEYWORD_NORETURN,
 	KEYWORD_PURE,
 	KEYWORD_REGISTER,
@@ -133,9 +132,9 @@ struct state
 
 static const char * const keywords[] = {
 	"bit", "break", "case", "const", "continue", "default", "do", "else",
-	"enum", "extern", "for", "goto", "if", "law", "marshal", "noalloc",
-	"noreturn", "pure", "register", "return", "sizeof", "struct", "switch",
-	"typedef", "union", "volatile", "while"
+	"enum", "extern", "for", "goto", "if", "law", "marshal", "noreturn",
+	"pure", "register", "return", "sizeof", "struct", "switch", "typedef",
+	"union", "volatile", "while"
 };
 
 static const char * const operators[] = {
@@ -202,8 +201,8 @@ static struct lexeme_opt check_eof( const char * input, unsigned input_sz, struc
 {
 	const struct lexeme lexeme = {
 		LEXEME_EOF,
-		&(input[state->index]),
-		1
+		1,
+		&(input[state->index])
 	};
 	const struct lexeme_opt ret = {
 		state->index >= input_sz || input[state->index] == 0x00
@@ -211,6 +210,41 @@ static struct lexeme_opt check_eof( const char * input, unsigned input_sz, struc
 		lexeme,
 		0
 	};
+
+	return ret;
+}
+
+static struct lexeme_opt check_wspace( const char * input, unsigned input_sz,
+struct state * state )
+{
+	unsigned count = 0;
+
+	while( state->index + count < input_sz &&
+	is_wspace( input[state->index + count] ))
+	{
+		count++;
+	}
+
+	{
+		const struct lexeme lexeme = {
+			LEXEME_WHITESPACE,
+			count,
+			&(input[state->index])
+		};
+		const struct lexeme_opt ret = {
+			count > 0,
+			lexeme,
+			count
+		};
+
+		return ret;
+	}
+}
+
+static struct lexeme_opt check_operator( const char * input,
+unsigned input_sz, struct state * state )
+{
+	struct lexeme_opt ret;
 
 	return ret;
 }
