@@ -1,0 +1,34 @@
+{
+	"configurations": [
+		{
+			"name": "Mac",
+			"includePath": [
+				"/opt/aq/include",
+				"/usr/local/include",
+				"${workspaceFolder}/src"
+			],
+			"defines": [
+				"__VSCODE_INTELLISENSE__"
+			],
+			"compilerPath": "/usr/local/opt/llvm/bin/clang",
+			"cStandard": "c89",
+			"cppStandard": "c++11",
+			"intelliSenseMode": "clang-x64"
+		}, {
+			"name": "Linux",
+			"includePath": [
+				"/opt/aq/include",
+				"/usr/include",
+				"${workspaceFolder}/src"
+			],
+			"defines": [
+				"__VSCODE_INTELLISENSE__"
+			],
+			"compilerPath": "/usr/bin/clang",
+			"cStandard": "c89",
+			"cppStandard": "c++11",
+			"intelliSenseMode": "clang-x64"
+		}
+	],
+	"version": 4
+}
