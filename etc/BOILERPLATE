@@ -5,7 +5,7 @@ Boilerplate for C-like languages:
 /****************************************************************************\
  *                                Sirius  C*                                *
  *                                                                          *
- *                     Copyright (C) 2020-2021 Aquefir.                     *
+ *                     Copyright (C) 2020-2022 Aquefir.                     *
  *                 Released under Artisan Software Licence.                 *
 \****************************************************************************/
 
@@ -14,6 +14,6 @@ Hash-based boilerplate (Python, POSIX shell, Makefile):
 ##############################################################################
 ##                                Sirius  C*                                ##
 ##                                                                          ##
-##                     Copyright (C) 2020-2021 Aquefir.                     ##
+##                     Copyright (C) 2020-2022 Aquefir.                     ##
 ##                 Released under Artisan Software Licence.                 ##
 ##############################################################################
